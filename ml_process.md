@@ -54,12 +54,30 @@ KBinsDiscretizer(n_bins=5, encode='ordinal')
 ```
 
 ### 🧮 Categorical Encoding
-| Data Type | Cardinality | Tree-Based? | Encoder |
-|-----------|-------------|-------------|---------|
-| Nominal   | Low         | Any         | OneHotEncoder |
-| Nominal   | High        | Tree        | LeaveOneOutEncoder |
-| Nominal   | High        | Linear      | TargetEncoder |
-| Ordinal   | Any         | Any         | OrdinalEncoder |
+
+
+### 🔁 If categorical encoding is required depending on Model
+
+| Model Type           | Need Encoding? | Recommended Method                                           |
+|----------------------|----------------|--------------------------------------------------------------|
+| **Linear / GLMs**    | ✅ Yes         | One-Hot Encoding, Target Encoding, or Leave-One-Out Encoding |
+| **Random Forest**    | ✅ Yes         | Target Encoding or Leave-One-Out Encoding                    |
+| **XGBoost < 1.3**    | ✅ Yes         | Target Encoding or Leave-One-Out Encoding                    |
+| **XGBoost ≥ 1.3**    | ❌ No*         | Use `category` dtype + `enable_categorical=True`             |
+| **LightGBM**         | ❌ No*         | Use `category` dtype + `categorical_feature` param           |
+
+> \* If using a `pandas.DataFrame` with `category` dtype
+
+### 📦 Recommended Encoding Methods by Scenario
+
+| Scenario                                               | Recommended Encoding Method         | Notes                                                                 |
+|--------------------------------------------------------|-------------------------------------|-----------------------------------------------------------------------|
+| Few categories (e.g., gender, payment method)          | One-Hot Encoding                    | Avoids ordinal assumptions, works well with linear models             |
+| Many categories (e.g., city, product ID)               | Target Encoding or Leave-One-Out    | Reduces dimensionality; beware of leakage (use CV-based encoding)    |
+| Tree-based models (pre-XGBoost 1.3, Random Forest)     | Target Encoding or Leave-One-Out    | Handles high cardinality well; preserves order of effect              |
+| Tree-based models (XGBoost ≥ 1.3, LightGBM)            | Use raw `category` dtype            | Enable native categorical support (`enable_categorical=True`)         |
+| High-cardinality + leakage concern                     | Leave-One-Out Encoding              | Safer than target encoding; still use within CV folds                 |
+| Linear models / Regularized models                     | One-Hot Encoding                    | Regularization benefits from sparse binary inputs                     |
 
 ### 📐 Feature Scaling
 | Algorithm Type | Use Scaling? | Scaler |

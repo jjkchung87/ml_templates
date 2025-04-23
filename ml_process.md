@@ -67,6 +67,12 @@ KBinsDiscretizer(n_bins=5, encode='ordinal')
 | **LightGBM**         | ❌ No*         | Use `category` dtype + `categorical_feature` param           |
 
 > \* If using a `pandas.DataFrame` with `category` dtype
+```python
+ X_train["city"] = X_train["city"].astype("category")
+
+model = XGBClassifier(enable_categorical=True)
+model.fit(X_train, y_train)
+```
 
 ### 📦 Recommended Encoding Methods by Scenario
 
